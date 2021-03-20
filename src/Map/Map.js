@@ -5,13 +5,14 @@ import * as ol from "ol";
 import {get as getProjection} from 'ol/proj';
 import proj4 from 'proj4';
 import {register} from 'ol/proj/proj4';
+import LayerGroup from 'ol/layer/Group';
+import { baseLayers, layers } from "../Utils/Constants";
 
-const Map = ({selectedLayer, children }) => {
+const Map = ({selectedBaseLayer, selectLayers, children }) => {
 	const mapRef = useRef();
 	const [map, setMap] = useState(null);
 	const [optionsMap, setOptionsMap] = useState(null);
 
-	// on component mount
 	useEffect(() => {
 		proj4.defs("EPSG:25831","+proj=utm +zone=31 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 		register(proj4);
@@ -26,29 +27,33 @@ const Map = ({selectedLayer, children }) => {
 		mapObject.setTarget(mapRef.current);
 		setOptionsMap(options);
 		setMap(mapObject);
-
 		return () => mapObject.setTarget(undefined);
-	}, map);
+	}, []);
 
-	// center change handler
-	// TODO: mirar lo de UseEffect com funciona!
 	useEffect(() => {
 		if (!map && !optionsMap) return;
 		map.getLayers().forEach(layer => {
-			if (layer && layer.get('title') == "COMARQUES_LAYER"){
-				layer.setVisible(true);
-			} else {
-				if (layer && layer.get('title') != selectedLayer) {
+			if (layer instanceof LayerGroup){
+				layer.getLayers().forEach((lyr,index,array) => {
+					if (selectLayers.COMARQUES_LAYER && lyr && lyr.get('title') == layers.COMARQUES_LAYER ||
+						selectLayers.MUNICIPIS_LAYER && lyr && lyr.get('title') == layers.MUNICIPIS_LAYER){
+						layer.setVisible(true);
+					} else if (layer){
+						map.removeLayer(layer);
+						layer.setVisible(false);
+					}
+				});
+			} else {	
+				if (selectedBaseLayer.ORTOFOTOMAPA_MAP && layer && layer.get('title') == baseLayers.ORTOFOTOMAPA_MAP ||
+					selectedBaseLayer.TOPOGRAFIC_MAP && layer && layer.get('title') == baseLayers.TOPOGRAFIC_MAP){
+						layer.setVisible(true);
+				} else if (layer){
 					map.removeLayer(layer);
 					layer.setVisible(false);
-					console.log("caca1 "+selectedLayer)
-				} else if (layer && layer.get('title') == selectedLayer) {
-					layer.setVisible(true);
-					console.log("caca2 "+selectedLayer)
 				}
 			}
 		});
-	}, [[396905,4618292]])
+	},[selectedBaseLayer , selectLayers.COMARQUES_LAYER , selectLayers.MUNICIPIS_LAYER])
 
 	return (
 		<MapContext.Provider value={{ map }}>

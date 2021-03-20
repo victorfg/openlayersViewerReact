@@ -2,33 +2,23 @@ import React, { useRef, useState, useEffect } from "react"
 import './App.scss';
 import Map from "./Map";
 import { Layers, TileLayer, VectorLayer, BaseLayers, GroupLayers } from "./Layers";
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
-import { osm, vector,topo, orto, comarques } from "./Source";
-import { fromLonLat, get } from 'ol/proj';
-import GeoJSON from 'ol/format/GeoJSON';
+import { topo, orto, comarques,municipis } from "./Source";
 import { Controls, FullScreenControl } from "./Controls";
-import TileWMS from 'ol/source/TileWMS';
-import { render } from '@testing-library/react';
-
-
+import { baseLayers, layers } from "./Utils/Constants";
 class App extends React.Component {
-
-    static TOPOGRAFIC_MAP = 'TOPOGRAFIC_MAP';
-    static ORTOFOTOMAPA_MAP = 'ORTOFOTOMAPA_MAP';
-
-    static MUNICIPIS_LAYER = 'MUNICIPIS_LAYER';
-    static COMARQUES_LAYER = 'COMARQUES_LAYER';
-
     constructor(props) {
         super(props);
         this.state = {
             openMenuOptions: false,
-            showTopo:false,
-            showOrto:true,
-            selectedLayer:App.ORTOFOTOMAPA_MAP
+            selectedBaseLayer:{
+                ORTOFOTOMAPA_MAP:true,
+                TOPOGRAFIC_MAP:false
+            },
+            selectLayers:{
+                COMARQUES_LAYER:true,
+                MUNICIPIS_LAYER:false
+            }
         };
-    
-        this.handlerRadioButtonsBaseLayer = this.handlerRadioButtonsBaseLayer.bind(this);
     }
 
     handlerMenu(ev){
@@ -38,35 +28,53 @@ class App extends React.Component {
     }
 
     handlerRadioButtonsBaseLayer(ev){
-        if (ev.value == "topo"){
-            this.setState((state, props) => ({
-                showTopo: ev.checked,
-                showOrto: !ev.checked,
-                selectedLayer: App.TOPOGRAFIC_MAP
-            }));
-        } else {
-            this.setState((state, props) => ({
-                showOrto: ev.checked,
-                showTopo: !ev.checked,
-                selectedLayer: App.ORTOFOTOMAPA_MAP
-            }));
+        switch (ev.value) {
+            case baseLayers.TOPOGRAFIC_MAP:
+                this.setState((state, props) => ({
+                    selectedBaseLayer: {
+                        ...state.selectedBaseLayer,
+                        TOPOGRAFIC_MAP: ev.checked,
+                        ORTOFOTOMAPA_MAP: !ev.checked
+                    }
+                }));
+                break;
+        
+            case baseLayers.ORTOFOTOMAPA_MAP:
+                this.setState((state, props) => ({
+                    selectedBaseLayer: {
+                        ...state.selectedBaseLayer,
+                        ORTOFOTOMAPA_MAP: ev.checked,
+                        TOPOGRAFIC_MAP: !ev.checked
+                    }
+                }));
+                break;
         }
     }
 
     handlerCheckButtonsLayers(ev){
-
+        switch (ev.value) {
+            case layers.COMARQUES_LAYER:
+                this.setState((state, props) => ({
+                    selectLayers: {
+                        ...state.selectLayers,
+                        COMARQUES_LAYER: ev.checked
+                    }
+                }));
+                break;
+        
+            case layers.MUNICIPIS_LAYER:
+                this.setState((state, props) => ({
+                    selectLayers: {
+                        ...state.selectLayers,
+                        MUNICIPIS_LAYER: ev.checked
+                    }
+                }));
+                break;
+        }
     }
 
-	/*const [center, setCenter] = useState([-94.9065, 38.9884]);
-    const [showOrto, setShowOrto] = useState(true);
-    const [showTopo, setShowTopo] = useState(false);
-	const [zoom, setZoom] = useState(9);
-	const [showLayer1, setShowLayer1] = useState(true);
-	const [showLayer2, setShowLayer2] = useState(true);
-    const [openMenuOptions, setOpenMenuOptions] = useState(false);*/
-
     render(){
-        const {openMenuOptions, showTopo, showOrto, selectedLayer} = this.state;
+        const {openMenuOptions, selectedBaseLayer, selectLayers} = this.state;
         return (
             <div className="grid-container">
                 <div className={"main-menu "+ (openMenuOptions ? "open" : "")} id="mainMenuContainer">
@@ -78,8 +86,8 @@ class App extends React.Component {
                                 <input 
                                     type="radio" 
                                     name="baseLayerRadioButton" 
-                                    defaultValue='topo'
-                                    checked={showTopo}
+                                    defaultValue={baseLayers.TOPOGRAFIC_MAP}
+                                    checked={selectedBaseLayer.TOPOGRAFIC_MAP}
                                     onChange={event => this.handlerRadioButtonsBaseLayer(event.target)}
                                     className="cursor-pointer">
                                 </input><br/>
@@ -99,9 +107,9 @@ class App extends React.Component {
                                     className="" 
                                     type="radio" 
                                     name="baseLayerRadioButton" 
-                                    defaultValue='orto' 
+                                    defaultValue={baseLayers.ORTOFOTOMAPA_MAP} 
                                     defaultChecked
-                                    checked={showOrto}
+                                    checked={selectedBaseLayer.ORTOFOTOMAPA_MAP}
                                     onChange={event => this.handlerRadioButtonsBaseLayer(event.target)}
                                     className="cursor-pointer">
                                 </input><br/>
@@ -122,7 +130,7 @@ class App extends React.Component {
                                     className="cursor-pointer" 
                                     name="comarquesCheckBox" 
                                     id="comarques" 
-                                    defaultValue="comarques" 
+                                    defaultValue={layers.COMARQUES_LAYER} 
                                     defaultChecked
                                     onChange={event => this.handlerCheckButtonsLayers(event.target)}>
                                 </input><br/>
@@ -143,7 +151,7 @@ class App extends React.Component {
                                     className="cursor-pointer" 
                                     name="municipisCheckBox" 
                                     id="municipis" 
-                                    defaultValue="municipis"
+                                    defaultValue={layers.MUNICIPIS_LAYER}
                                     onChange={event => this.handlerCheckButtonsLayers(event.target)}>
                                 </input><br/>
                                 <label>Municipis</label>
@@ -166,33 +174,35 @@ class App extends React.Component {
                         <div id="menuLeft" className="bar-menu-left" onClick={() => this.handlerMenu(!openMenuOptions)}><i className="fa fa-bars" aria-hidden="true"></i></div>
                         Mapa comarcal / municipal    
                     </div>
-                    <Map selectedLayer={selectedLayer}>
+                    <Map selectedBaseLayer={selectedBaseLayer} selectLayers={selectLayers}>
                         <Layers>
-                            {showTopo && (
+                            {selectedBaseLayer.TOPOGRAFIC_MAP && (
                                 <BaseLayers
                                     source={topo()}
-                                    zIndex={0}
-                                    extent = {[257904,4484796,535907,4751795]}
-                                    title={App.TOPOGRAFIC_MAP}
+                                    title={baseLayers.TOPOGRAFIC_MAP}
                                 />
                             )}
-                            {showOrto && (
+                            {selectedBaseLayer.ORTOFOTOMAPA_MAP && (
                                 <BaseLayers
                                     source={orto()}
-                                    zIndex={0}
-                                    extent = {[257904,4484796,535907,4751795]}
-                                    title={App.ORTOFOTOMAPA_MAP}
+                                    title={baseLayers.ORTOFOTOMAPA_MAP}
                                 />
                             )}
-                            {
+                            
+                            {selectLayers.COMARQUES_LAYER && (
                                 <GroupLayers
                                     source={comarques()}
-                                    zIndex={0}
-                                    extent = {[257904,4484796,535907,4751795]}
-                                    title={App.COMARQUES_LAYER}
-                                    visible
+                                    title={layers.COMARQUES_LAYER}
                                 />
-                            }
+                            )}
+
+                            {selectLayers.MUNICIPIS_LAYER && (
+                                <GroupLayers
+                                    source={municipis()}
+                                    title={layers.MUNICIPIS_LAYER}
+                                />
+                            )}
+
                         </Layers>
                         <Controls>
                             <FullScreenControl />

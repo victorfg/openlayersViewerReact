@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react";
 import MapContext from "../Map/MapContext";
 import OLTileLayer from "ol/layer/Tile";
 
-const BaseLayers = ({ source, zIndex = 0, extent, title, visible }) => {
+const BaseLayers = ({ source, title }) => {
 	const { map } = useContext(MapContext);
 
 	useEffect(() => {
@@ -10,15 +10,10 @@ const BaseLayers = ({ source, zIndex = 0, extent, title, visible }) => {
 
 		let tileLayer = new OLTileLayer({
 			source,
-			zIndex,
-            extent,
-            title,
-            visible
+            title
 		});
 
-       
 		map.addLayer(tileLayer);
-		tileLayer.setZIndex(zIndex);
 	});
 
 	return null;
