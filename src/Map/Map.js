@@ -8,7 +8,7 @@ import {register} from 'ol/proj/proj4';
 import LayerGroup from 'ol/layer/Group';
 import { baseLayers, layers } from "../Utils/Constants";
 
-const Map = ({selectedBaseLayer, selectLayers, children }) => {
+const Map = ({selectedBaseLayer, selectLayers, opacityLayer,children }) => {
 	const mapRef = useRef();
 	const [map, setMap] = useState(null);
 	const [optionsMap, setOptionsMap] = useState(null);
@@ -30,6 +30,25 @@ const Map = ({selectedBaseLayer, selectLayers, children }) => {
 		return () => mapObject.setTarget(undefined);
 	}, []);
 
+	//HANDLER OPACITY LAYERS
+	useEffect(() => {
+		if (!map && !optionsMap) return;
+		map.getLayers().forEach(layer => {
+			if (layer instanceof LayerGroup){
+				layer.getLayers().forEach((lyr,index,array) => {
+					if (opacityLayer.dom_element.parentElement.firstElementChild.value == lyr.get('title') ){
+						layer.setOpacity(parseFloat(opacityLayer.value));
+					}
+				});
+			} else {	
+				if (opacityLayer.dom_element.parentElement.firstElementChild.value == layer.get('title') ){
+					layer.setOpacity(parseFloat(opacityLayer.value));
+				}
+			}
+		});
+	},[opacityLayer.value])
+
+	//HANDLER CHANGE LAYERS
 	useEffect(() => {
 		if (!map && !optionsMap) return;
 		map.getLayers().forEach(layer => {

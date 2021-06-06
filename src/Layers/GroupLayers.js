@@ -3,7 +3,7 @@ import MapContext from "../Map/MapContext";
 import OLTileLayer from "ol/layer/Tile";
 import LayerGroup from 'ol/layer/Group';
 
-const GroupLayers = ({ source, title}) => {
+const GroupLayers = ({ source, title, selectedBaseLayer}) => {
 	const { map } = useContext(MapContext);
 
 	useEffect(() => {
@@ -23,7 +23,7 @@ const GroupLayers = ({ source, title}) => {
         })
         
         map.addLayer(tileLayer);
-	});
+	}, [map, selectedBaseLayer]);
 
 	return null;
 };

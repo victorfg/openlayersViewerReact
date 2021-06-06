@@ -14,7 +14,7 @@ const BaseLayers = ({ source, title }) => {
 		});
 
 		map.addLayer(tileLayer);
-	});
+	}, [map]);
 
 	return null;
 };
