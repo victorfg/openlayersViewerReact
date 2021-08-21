@@ -1,50 +1,23 @@
-import React from "react"
-import { useState,useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import './App.scss';
 import Map from "./Map";
-import { Style, Icon } from "ol/style";
-import Feature from "ol/Feature";
 import { Layers, BaseLayers, GroupLayers, VectorLayer } from "./Layers";
 import { topo, orto, comarques,municipis } from "./Source";
 import { Controls, FullScreenControl } from "./Controls";
 import { baseLayers, layers } from "./Utils/Constants";
 import MenuComponent from "./Menu/MenuComponent";
-import mapConfig from "./dataSample.json";
-import Point from "ol/geom/Point";
-import { osm, vector } from "./Source";
-import { fromLonLat, get } from "ol/proj";
-const markersLonLat = [mapConfig.manresa, mapConfig.barcelona];
 
-//TODO: ACONSEGUIR MARCAR AL MAPA PUNTS DE MANRESA I BARCELONA
-function addMarkers(lonLatArray) {
-    var iconStyle = new Style({
-      image: new Icon({
-        anchorXUnits: "fraction",
-        anchorYUnits: "pixels",
-        src: mapConfig.markerImage32,
-      }),
-    });
-    let features = lonLatArray.map((item) => {
-      let feature = new Feature({
-        geometry: new Point(fromLonLat([4.35247, 50.84673])),
-      });
-      feature.setStyle(iconStyle);
-      return feature;
-    });
-    return features;
-}
-
+import './lib/jqueryGlobal';
+import 'bootstrap';
 
 const App = () => {
     const [openMenuOptions, setOpenMenuOptions] = useState(false);
     const [selectedBaseLayer, setSelectedBaseLayer] = useState({ ORTOFOTOMAPA_MAP: true, TOPOGRAFIC_MAP: false });
-    const [selectLayers, setSelectLayers] = useState({ COMARQUES_LAYER:true, MUNICIPIS_LAYER:false });
+    const [selectLayers, setSelectLayers] = useState({ COMARQUES_LAYER:false, MUNICIPIS_LAYER:false });
     const [opacityLayer, setOpacityLayer] = useState({dom_element: null, value: null});
-    const [features, setFeatures] = useState(addMarkers(markersLonLat));
+    const [usersData, setUsersData] = useState(null);
 
-    const [usersData, setUsersData] = React.useState(null);
-
-    React.useEffect(() => {
+    useEffect(() => {
         fetch("/api")
         .then((res) => res.json())
         .then((data) => setUsersData(data));
@@ -84,70 +57,67 @@ const App = () => {
         setOpacityLayer(newObj);
     }
 
-    const usersName = usersData?.map((name) => name.AGENT_NAME);
-
     return (
-        <>
-            {usersName}
-            <div className="grid-container">
-                <MenuComponent 
-                    selectedBaseLayer={selectedBaseLayer} 
-                    openMenuOptions={openMenuOptions}
-                    handlerRadioButtonsBaseLayer={handlerRadioButtonsBaseLayer}
-                    handlerCheckButtonsLayers={handlerCheckButtonsLayers}
-                    handlerOpacityLayer={handlerOpacityLayer}
-                />    
-                <div id="map" className="map">
-                    <div className="title">
-                        <div id="menuLeft" className="bar-menu-left" onClick={() => setOpenMenuOptions(prevState => !prevState)}><i className="fa fa-bars" aria-hidden="true"></i></div>
-                        Mapa comarcal / municipal    
-                    </div>
-                    <Map 
-                        selectedBaseLayer={selectedBaseLayer} 
-                        selectLayers={selectLayers}
-                        opacityLayer={opacityLayer}
-                    >
-                        <Layers>
-                            {selectedBaseLayer.TOPOGRAFIC_MAP && (
-                                <BaseLayers
-                                    source={topo()}
-                                    title={baseLayers.TOPOGRAFIC_MAP}
-                                />
-                            )}
-                            {selectedBaseLayer.ORTOFOTOMAPA_MAP && (
-                                <BaseLayers
-                                    source={orto()}
-                                    title={baseLayers.ORTOFOTOMAPA_MAP}
-                                />
-                            )}
-                            
-                            {selectLayers.COMARQUES_LAYER && (
-                                <GroupLayers
-                                    source={comarques()}
-                                    title={layers.COMARQUES_LAYER}
-                                    selectedBaseLayer={selectedBaseLayer}
-                                />
-                            )}
-
-                            {selectLayers.MUNICIPIS_LAYER && (
-                                <>
-                                <GroupLayers
-                                    source={municipis()}
-                                    title={layers.MUNICIPIS_LAYER}
-                                    selectedBaseLayer={selectedBaseLayer}
-                                />
-                                <VectorLayer source={vector({ features })} />
-                                </>
-                            )}
-                        
-                        </Layers>
-                        <Controls>
-                            <FullScreenControl />
-                        </Controls>
-                    </Map>
-                </div>
+        <div className="grid-container">
+            <MenuComponent 
+                selectedBaseLayer={selectedBaseLayer} 
+                openMenuOptions={openMenuOptions}
+                handlerRadioButtonsBaseLayer={handlerRadioButtonsBaseLayer}
+                handlerCheckButtonsLayers={handlerCheckButtonsLayers}
+                handlerOpacityLayer={handlerOpacityLayer}
+            />    
+            <div id="map" className="map">
+            <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                <div id="popup-content"></div>
             </div>
-        </>
+                <div className="title">
+                    <div id="menuLeft" className="bar-menu-left" onClick={() => setOpenMenuOptions(prevState => !prevState)}><i className="fa fa-bars" aria-hidden="true"></i></div>
+                    Mapa dels colegiats/des   
+                </div>
+                <Map 
+                    selectedBaseLayer={selectedBaseLayer} 
+                    selectLayers={selectLayers}
+                    opacityLayer={opacityLayer}
+                >
+                    <Layers>
+                        {selectedBaseLayer.TOPOGRAFIC_MAP && (
+                            <BaseLayers
+                                source={topo()}
+                                title={baseLayers.TOPOGRAFIC_MAP}
+                            />
+                        )}
+                        {selectedBaseLayer.ORTOFOTOMAPA_MAP && (
+                            <BaseLayers
+                                source={orto()}
+                                title={baseLayers.ORTOFOTOMAPA_MAP}
+                            />
+                        )}
+                        
+                        {selectLayers.COMARQUES_LAYER && (
+                            <GroupLayers
+                                source={comarques()}
+                                title={layers.COMARQUES_LAYER}
+                                selectedBaseLayer={selectedBaseLayer}
+                            />
+                        )}
+
+                        {selectLayers.MUNICIPIS_LAYER && (
+                            <GroupLayers
+                                source={municipis()}
+                                title={layers.MUNICIPIS_LAYER}
+                                selectedBaseLayer={selectedBaseLayer}
+                            />
+                        )}
+                        <VectorLayer usersData={usersData}/>
+                    
+                    </Layers>
+                    <Controls>
+                        <FullScreenControl />
+                    </Controls>
+                </Map>
+            </div>
+        </div>
     );
 };
 

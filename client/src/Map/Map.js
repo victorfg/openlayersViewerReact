@@ -3,8 +3,6 @@ import "./Map.scss";
 import MapContext from "./MapContext";
 import * as ol from "ol";
 import {get as getProjection} from 'ol/proj';
-import proj4 from 'proj4';
-import {register} from 'ol/proj/proj4';
 import LayerGroup from 'ol/layer/Group';
 import { baseLayers, layers } from "../Utils/Constants";
 
@@ -13,14 +11,12 @@ const Map = ({selectedBaseLayer, selectLayers, opacityLayer,children }) => {
 	const [map, setMap] = useState(null);
 	const [optionsMap, setOptionsMap] = useState(null);
 
-	useEffect(() => {
-		proj4.defs("EPSG:25831","+proj=utm +zone=31 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-		register(proj4);
+	useEffect(() => { 
 		const projection = getProjection('EPSG:25831');
 		projection.setExtent([257904,4484796,535907,4751795]);
 		const extent = [257904,4284796,515907,4751795];
 		let options = {
-			view: new ol.View({ zoom:0, center:[396905,4618292], projection: projection, extent: extent}),
+			view: new ol.View({ zoom:1.5, center:[396905,4618292], projection: projection}),
 			controls: []
 		};
 		let mapObject = new ol.Map(options);

@@ -9,7 +9,8 @@ const InputLayerSelectorAndOpacity = (props) => {
                 onChange={props.onChange}
                 className={props.className}
                 defaultChecked={props.defaultChecked}
-                id={props.id}>
+                id={props.id}
+                disabled={props.disabled}>
             </input>
             <label>{props.layerName}</label>
             <input 
@@ -20,7 +21,8 @@ const InputLayerSelectorAndOpacity = (props) => {
                 min="0" 
                 max="1" 
                 step="0.01"
-                onChange={props.onChangeRange}>  
+                onChange={props.onChangeRange}
+                disabled={props.disabled}>  
             </input>
          </>
     )

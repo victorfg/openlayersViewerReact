@@ -19,6 +19,7 @@ const MenuComponent = (props) => {
                             className="cursor-pointer"
                             layerName="ICC Topo"
                             onChangeRange={event => props.handlerOpacityLayer(event.target)}
+                            disabled={true}
                         />
                     </div>
                     <div className="aligns-items margin-top-10">
@@ -44,6 +45,7 @@ const MenuComponent = (props) => {
                             defaultChecked
                             id="comarques"
                             onChangeRange={event => props.handlerOpacityLayer(event.target)}
+                            disabled={true}
                         />
                     </div>
                     <div className="aligns-items margin-top-10">
@@ -57,6 +59,7 @@ const MenuComponent = (props) => {
                             defaultChecked={false}
                             id="municipis"
                             onChangeRange={event => props.handlerOpacityLayer(event.target)}
+                            disabled={true}
                         />
                       
                     </div>
