@@ -10,11 +10,9 @@ const db = mysql.createPool({
 });
 
 app.get("/api", (req, res) => {
-  //const sqlInsert = "INSERT INTO agents (AGENT_NAME, WORKING_AREA, COMMISSION, PHONE_NO) VALUES ('victorfer', 'informatic', '0.2', '678345345');"
   const sqlSelect = "SELECT * FROM geograf";
   db.query(sqlSelect, (err, result)=> {
-    console.log(err);
-    console.log(result)
+    console.log(result);
     res.send(result);
   })
 
