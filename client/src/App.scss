@@ -81,6 +81,10 @@ body{
   margin-bottom: 20px;
   align-items: center;
   justify-content: center;
+
+  a, a:hover{
+    color: black;
+  }
 }
 
 /* Main Classes */
@@ -107,5 +111,9 @@ body{
   margin-top: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid #808080;
+}
+.user-div{
+  position: absolute;
+  right: 15px;
 }
 /* End Main Classes */

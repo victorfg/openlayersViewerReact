@@ -14,9 +14,9 @@ const Map = ({selectedBaseLayer, selectLayers, opacityLayer,children }) => {
 	useEffect(() => { 
 		const projection = getProjection('EPSG:25831');
 		projection.setExtent([257904,4484796,535907,4751795]);
-		const extent = [257904,4284796,515907,4751795];
+		const extent = [257904,4484796,535907,4751795];
 		let options = {
-			view: new ol.View({ zoom:1.5, center:[396905,4618292], projection: projection}),
+			view: new ol.View({ zoom:1.5, center:[396905,4618292], projection: projection, extent: extent}),
 			controls: []
 		};
 		let mapObject = new ol.Map(options);

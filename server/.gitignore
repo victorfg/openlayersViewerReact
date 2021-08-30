@@ -1,5 +1,5 @@
 /node_modules
 
 # DELETE WHEN DEPLOY!
-/connection
-/build
+#/connection
+#/build

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import './App.scss';
-import Map from "./Map";
-import { Layers, BaseLayers, GroupLayers, VectorLayer } from "./Layers";
-import { topo, orto, comarques,municipis } from "./Source";
-import { Controls, FullScreenControl } from "./Controls";
-import { baseLayers, layers } from "./Utils/Constants";
-import MenuComponent from "./Menu/MenuComponent";
+import Map from "./pages/map/Map";
+import { Layers, BaseLayers, GroupLayers, VectorLayer } from "./pages/map/Layers";
+import { topo, orto, comarques,municipis } from "./pages/map/Source";
+import { Controls, FullScreenControl } from "./pages/map/Controls";
+import { baseLayers, layers } from "./pages/map/Utils/Constants";
+import MenuComponent from "./pages/map/Menu/MenuComponent";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 import './lib/jqueryGlobal';
 import 'bootstrap';
@@ -18,9 +20,9 @@ const App = () => {
     const [usersData, setUsersData] = useState(null);
 
     useEffect(() => {
-        fetch("/api")
-        .then((res) => res.json())
-        .then((data) => setUsersData(data));
+        axios.get("/api")
+        .then((res) => setUsersData(res.data))
+        .catch(err => console.log(err));
     }, []);
 
     const handlerRadioButtonsBaseLayer = (ev) => {
@@ -67,13 +69,16 @@ const App = () => {
                 handlerOpacityLayer={handlerOpacityLayer}
             />    
             <div id="map" className="map">
-            <div id="popup" class="ol-popup">
-                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+            <div id="popup" className="ol-popup">
+                <a href="#" id="popup-closer" className="ol-popup-closer"></a>
                 <div id="popup-content"></div>
             </div>
                 <div className="title">
                     <div id="menuLeft" className="bar-menu-left" onClick={() => setOpenMenuOptions(prevState => !prevState)}><i className="fa fa-bars" aria-hidden="true"></i></div>
-                    Mapa dels colegiats/des   
+                    <h4>Mapa dels colegiats/des</h4>
+                    <Link to="/login">
+                        <div className="cursor-pointer user-div"><i className="fa fa-user" aria-hidden="true"></i></div>
+                    </Link>
                 </div>
                 <Map 
                     selectedBaseLayer={selectedBaseLayer} 

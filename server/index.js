@@ -1,6 +1,10 @@
 const express = require('express');
 const app = express();
+const cors = require("cors");
 const path = require('path');
+
+app.use(express.json());
+app.use(cors());
 
 var getConnection = require('./connection/db');
 
@@ -14,10 +18,36 @@ app.get("/api", (req, res) => {
   getConnection(function (err, con) {
     if(err) { console.log(err) }
     var userQuery = "SELECT * FROM geograf";
-    console.log("con: " + con); //displays undefined
+    console.log("con: " + con);
     con.query(userQuery, (err, result)=> {
       //console.log(result);
       res.send(result);
+    });
+  });
+});
+
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  getConnection(function (err, con) {
+    if(err) { console.log(err) }
+
+    var userQuery = "SELECT * FROM adminUser";
+    con.query(userQuery, (err, result)=> {
+      console.log('1a '+result[0].Name);
+      console.log('1b '+username);
+      console.log('2a '+result[0].Password);
+      console.log('2b '+password);
+
+      if (result[0].Name != username) {
+        res.send({ statusOK: false,error: "Usuari Incorrecte" })
+      } else {
+        if (result[0].Password != password) res.send({ statusOK: false, error: "Password Incorrecte" });
+      }
+
+      if (result[0].Name === username && result[0].Password === password){
+        res.send({statusOK: true});
+      }
     });
   });
 });
