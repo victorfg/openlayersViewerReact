@@ -19,7 +19,7 @@ const Login = (props) => {
     const login = () => {
         const data = { username: username, password: password };
         axios
-        .post("http://localhost:3001/login", data)
+        .post("/login", data)
         .then((response) => {
             if (response.data.statusOK){
                 setLoginResult(prevState => ({
@@ -34,7 +34,13 @@ const Login = (props) => {
                 }));
             }
         })
-        .catch(err => console.log(err));
+        .catch(error => {
+            if (!error.response) {
+                console.log('Error: Network Error');
+            } else {
+                console.log(error.response.data.message);
+            }
+        })
     };
     
     return (

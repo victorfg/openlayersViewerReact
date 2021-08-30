@@ -52,14 +52,33 @@ app.post("/login", (req, res) => {
   });
 });
 
+/* TODO falta fer que funcioni */
+app.delete("/logout", (req, res) => {
+  if (req.session) {
+    req.session.destroy(err => {
+      if (err) {
+        res.status(400).send('Unable to log out')
+        console.log('1 '+err)
+      } else {
+        res.send('Logout successful')
+        console.log('2 ')
+      }
+    });
+  } else {
+    res.end()
+    console.log('3 ')
+  }
+})
+
+
 //* DEVELOPMENT *//
 
-/*app.listen(3001, ()=> {
+app.listen(3001, ()=> {
   console.log('runing port 3001')
-})*/
+})
 
 //* DEPLOYMENT *//
 
-app.listen(process.env.PORT || PORT, ()=> {
+/*app.listen(process.env.PORT || PORT, ()=> {
   console.log('runing port 3001')
-})
+})*/
